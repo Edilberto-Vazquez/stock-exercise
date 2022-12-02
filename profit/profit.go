@@ -13,13 +13,13 @@ type Profit struct {
 	Profit int64
 }
 
-func CalcProfit(exchangeRates []int64) (*Profit, error) {
+func CalcProfit(prices []int64) (*Profit, error) {
 
-	if len(exchangeRates) == 0 {
+	if len(prices) == 0 {
 		return nil, errors.New("exchange rate list length is too short must be equal or greater than 1")
 	}
 
-	if len(exchangeRates) > 100000 {
+	if len(prices) > 100000 {
 		return nil, errors.New("the length of the exchange rate list is too long")
 	}
 
@@ -29,7 +29,7 @@ func CalcProfit(exchangeRates []int64) (*Profit, error) {
 		Profit: 0,
 	}
 
-	for day, amount := range exchangeRates {
+	for day, amount := range prices {
 		if amount <= 0 || amount > 10000 {
 			continue
 		}
