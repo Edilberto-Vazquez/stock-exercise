@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	arr := []int64{7, 4, 2, 10000, 6, 3, 8, 5}
+	arr := []int64{7, 6, 5, 2, 10, 7, 9}
 
 	fmt.Println("**********")
 
