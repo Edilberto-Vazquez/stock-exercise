@@ -13,15 +13,38 @@ type Profit struct {
 	Profit int64
 }
 
-func CalcProfit(prices []int64) (*Profit, error) {
+var PRICES_LENGTH = 0
+
+func CalcProfit(profit *Profit, prices []int64) {
 
 	if len(prices) == 0 {
-		return nil, errors.New("exchange rate list length is too short must be equal or greater than 1")
+		return
 	}
 
-	if len(prices) > 100000 {
-		return nil, errors.New("the length of the exchange rate list is too long")
+	var buyPrice int64
+
+	for day, price := range prices {
+		if day == 0 {
+			buyPrice = price
+			continue
+		}
+		if (price - buyPrice) > profit.Profit {
+			profit.Profit = price - buyPrice
+			profit.Sell = Transaction{Amount: price, Day: int64(PRICES_LENGTH-(len(prices)-day)) + 1}
+			profit.Buy = Transaction{Amount: buyPrice, Day: int64(PRICES_LENGTH-len(prices)) + 1}
+		}
 	}
+
+	CalcProfit(profit, prices[1:])
+}
+
+func GetProfit(prices []int64) (*Profit, error) {
+
+	if len(prices) < 1 || len(prices) > 100000 {
+		return nil, errors.New("exchange rate list length must be  1 <= len(prices) <= 1000")
+	}
+
+	PRICES_LENGTH = len(prices)
 
 	profit := &Profit{
 		Buy:    Transaction{Amount: 0, Day: 0},
@@ -29,26 +52,7 @@ func CalcProfit(prices []int64) (*Profit, error) {
 		Profit: 0,
 	}
 
-	for day, amount := range prices {
-		if amount <= 0 || amount > 10000 {
-			continue
-		}
-
-		if amount <= profit.Buy.Amount || profit.Buy.Amount == 0 {
-			profit.Buy.Amount = amount
-			profit.Buy.Day = int64(day + 1)
-		}
-
-		if day > 0 && day > int(profit.Buy.Day-1) && amount > profit.Buy.Amount && amount > profit.Sell.Amount {
-			profit.Sell.Amount = amount
-			profit.Sell.Day = int64(day + 1)
-		}
-	}
-
-	if profit.Sell.Amount-profit.Buy.Amount > 0 {
-		profit.Profit = profit.Sell.Amount - profit.Buy.Amount
-		return profit, nil
-	}
+	CalcProfit(profit, prices)
 
 	return profit, nil
 

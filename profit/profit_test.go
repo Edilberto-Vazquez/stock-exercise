@@ -34,7 +34,7 @@ func TestCalcProfit(t *testing.T) {
 			Message: "Then if you cant get any profit return 0 and a nil error",
 			Input:   []int64{7, 6, 4, 3, 1},
 			Result: &profit.Profit{
-				Buy:    profit.Transaction{Amount: 1, Day: 5},
+				Buy:    profit.Transaction{Amount: 0, Day: 0},
 				Sell:   profit.Transaction{Amount: 0, Day: 0},
 				Profit: 0,
 			},
@@ -46,15 +46,6 @@ func TestCalcProfit(t *testing.T) {
 				Buy:    profit.Transaction{Amount: 2, Day: 3},
 				Sell:   profit.Transaction{Amount: 10000, Day: 4},
 				Profit: 9998,
-			},
-		},
-		{
-			Message: "Then if some price is greater than 10000 skip value returns the maximum and a nil error",
-			Input:   []int64{7, 4, 2, 10001, 6, 3, 8, 5},
-			Result: &profit.Profit{
-				Buy:    profit.Transaction{Amount: 2, Day: 3},
-				Sell:   profit.Transaction{Amount: 8, Day: 7},
-				Profit: 6,
 			},
 		},
 	}
@@ -74,7 +65,7 @@ func TestCalcProfit(t *testing.T) {
 
 	for _, test := range testsInputsOk {
 		t.Log(test.Message)
-		result, _ := profit.CalcProfit(test.Input)
+		result, _ := profit.GetProfit(test.Input)
 		testRes, _ := json.Marshal(test.Result)
 		resultRes, _ := json.Marshal(result)
 		if reflect.DeepEqual(test.Result, result) {
@@ -90,7 +81,7 @@ func TestCalcProfit(t *testing.T) {
 
 	for _, test := range testsInputsWrong {
 		t.Log(test.Message)
-		result, err := profit.CalcProfit(test.Input)
+		result, err := profit.GetProfit(test.Input)
 		if err != nil && result == nil {
 			if len(test.Input) > 100000 {
 				t.Log("CalcProfit([0,0,0,...0]) PASSED.")
@@ -103,13 +94,13 @@ func TestCalcProfit(t *testing.T) {
 			}
 		} else {
 			if len(test.Input) > 100000 {
-				t.Log("CalcProfit([0,0,0,...0]) FAILED.")
-				t.Logf("Expected %v", test.Result)
-				t.Logf("Got %v\n\n", result)
+				t.Errorf("CalcProfit([0,0,0,...0]) FAILED.")
+				t.Errorf("Expected %v", test.Result)
+				t.Errorf("Got %v\n\n", result)
 			} else {
-				t.Logf("CalcProfit(%v) FAILED.", test.Input)
-				t.Logf("Expected %v", test.Result)
-				t.Logf("Got %v\n\n", result)
+				t.Errorf("CalcProfit(%v) FAILED.", test.Input)
+				t.Errorf("Expected %v", test.Result)
+				t.Errorf("Got %v\n\n", result)
 			}
 		}
 	}
